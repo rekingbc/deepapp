@@ -1,0 +1,11 @@
+€}q(Ushutil]q(UcopyfileqUignore_patternsqUcopytreeqUget_archive_formatsqUcopyfileobjqUregister_archive_formatqUcopymodeq	Umake_archiveq
+UmoveqUunregister_archive_formatqUrmtreeqUErrorqUcopyqU	ExecErrorqUcopy2qUSpecialFileErrorqUcopystatqUWindowsErrorqeUos]q(Upopen4qUexecleqUpopen3qUSEEK_CURqUspawnlpqUexeclpqUenvironqUspawnvpqUspawnlqUexecvpqUmakedirsq Ulinesepq!UP_WAITq"Uspawnvq#Uspawnveq$Uexecvpeq%Uunsetenvq&USEEK_SETq'Ugetenvq(Upopen2q)Uwalkq*Uspawnleq+Uexeclq,Unameq-USEEK_ENDq.Uspawnlpeq/U	P_NOWAITOq0UP_NOWAITq1U
+removedirsq2Urenamesq3Uspawnvpeq4Uexeclpeq5eUim_comp]q6(U
+feat_validq7Udata_augmentationq8U
+label_testq9U
+test_labelq:Ulabel_trainq;U
+valid_featq<Uimg_colsq=Unb_epochq>Utrain_labelq?UX_trainq@UY_validqAUY_trainqBUvalid_labelqCUX_testqDU	test_featqEU
+train_featqFUX_validqGU
+batch_sizeqHUdatagenqIUlabel_validqJUadagradqKU	feat_testqLUimg_channelsqMU
+nb_classesqNU
+feat_trainqOUmodelqPUimg_rowsqQeUdatetime]qR(U	timedeltaqSUMAXYEARqTUdateqUUdatetime_CAPIqVUtzinfoqWUtimeqXUMINYEARqYUdatetimeqZeu.
