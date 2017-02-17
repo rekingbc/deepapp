@@ -69,7 +69,7 @@ Y_valid = np_utils.to_categorical(valid_label, nb_classes)
 
 
 model = Sequential()
-
+"""
 model.add(Convolution2D(64, 3, 3, border_mode='same',
                 input_shape=X_train.shape[1:]))
 model.add(BatchNormalization())
@@ -107,6 +107,31 @@ model.add(Activation('relu'))
 model.add(Dropout(0.30))
 model.add(Dense(nb_classes))
 model.add(Activation('softmax'))
+"""
+
+model.add(Convolution2D(32, 3, 3, border_mode='same',
+                        input_shape=X_train.shape[1:]))
+model.add(Activation('relu'))
+model.add(Convolution2D(32, 3, 3))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+model.add(Convolution2D(64, 3, 3, border_mode='same'))
+model.add(Activation('relu'))
+model.add(Convolution2D(64, 3, 3))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+model.add(Flatten())
+model.add(Dense(512))
+model.add(Activation('relu'))
+model.add(Dropout(0.5))
+model.add(Dense(nb_classes))
+model.add(Activation('softmax'))
+
+
 
 adagrad = Adagrad(lr=0.01, epsilon=1e-08, decay=0.0)
 model.compile(loss='categorical_crossentropy',
