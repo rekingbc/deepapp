@@ -8,6 +8,7 @@ from keras.regularizers import l2, activity_l2
 from keras.utils import np_utils
 import numpy as np
 import cPickle as pickle
+import scipy.ndimage.interpolation
 
 batch_size = 32
 nb_classes = 10
@@ -22,16 +23,19 @@ img_channels = 3
 # The data, shuffled and split between train and test sets:
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
 
-feat_train = open('/Users/rwa56//Downloads/Homework2_data/train_feat.pickle', 'rb')
+feat_train = open('/Users/rwa56/Downloads/Homework2_data/valid_feat.pickle', 'rb')
 train_feat = pickle.load(feat_train)
 feat_train.close()
 
-label_train = open('/Users/rwa56//Downloads/Homework2_data/train_lab.pickle', 'rb')
+label_train = open('/Users/rwa56/Downloads/Homework2_data/valid_lab.pickle', 'rb')
 train_label = pickle.load(label_train)
 label_train.close()
 
 X_valid = train_feat.astype('float32')
 X_valid /= 255
+
+for i in xrange(X_valid.shape[0]):
+    X_valid[i,:,:,:] = scipy.ndimage.interpolation.rotate(X_valid[i,:,:,:],-90)
 
 Y_valid = np_utils.to_categorical(train_label, nb_classes)
 
@@ -44,31 +48,35 @@ print(X_test.shape[0], 'test samples')
 Y_train = np_utils.to_categorical(y_train, nb_classes)
 Y_test = np_utils.to_categorical(y_test, nb_classes)
 
-
+print('The Y train sample: ', Y_train[1])
+print('The Y valid sample: ', Y_valid[1])
 
 model = Sequential()
 
 model.add(Convolution2D(32, 3, 3, border_mode='same',
                         input_shape=X_train.shape[1:]))
+model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Convolution2D(32, 3, 3))
+model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Convolution2D(64, 3, 3, border_mode='same'))
-model.add(Activation('relu'))
 model.add(Convolution2D(64, 3, 3))
+model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
 model.add(Flatten())
-model.add(Dense(512))
+model.add(Dense(256))
+model.add(BatchNormalization())
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+model.add(Dropout(0.3))
 model.add(Dense(nb_classes))
 model.add(Activation('softmax'))
+
 
 # Let's train the model using RMSprop
 model.compile(loss='categorical_crossentropy',
@@ -100,7 +108,7 @@ else:
         featurewise_std_normalization=False,  # divide inputs by std of the dataset
         samplewise_std_normalization=False,  # divide each input by its std
         zca_whitening=False,  # apply ZCA whitening
-        rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+        rotation_range=90,  # randomly rotate images in the range (degrees, 0 to 180)
         width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
         height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
         horizontal_flip=True,  # randomly flip images
