@@ -3,89 +3,36 @@ from __future__ import print_function
 import os
 import sys
 import cPickle as pickle
-import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.models import Model
 from keras.layers import Input, Dense, Embedding, Reshape, GRU, merge, LSTM, Dropout, BatchNormalization, Activation, Flatten
-from keras.layers import Convolution2D, MaxPooling2D
+from keras.layers import ZeroPadding2D, AveragePooling2D, Convolution2D, MaxPooling2D, merge, Input
 from keras.utils import np_utils
 from keras.optimizers import RMSprop, Adagrad
 from keras.regularizers import l2, activity_l2
 import scipy.ndimage.interpolation
-import numpy
 
-batch_size = 80
-nb_classes = 10
-nb_epoch = 50
-data_augmentation = False
-img_rows, img_cols = 32, 32
-img_channels = 3
+from keras.preprocessing import image
+import keras.backend as K
+from keras.utils.layer_utils import convert_all_kernels_in_model
+from keras.utils.data_utils import get_file
 
 
-feat_train = open('/Users/rwa56/Downloads/Homework2_data/train_feat.pickle', 'rb')
-train_feat = pickle.load(feat_train)
-feat_train.close()
-
-label_train = open('/Users/rwa56/Downloads/Homework2_data/train_lab.pickle', 'rb')
-train_label = pickle.load(label_train)
-label_train.close()
-
-feat_valid = open('/Users/rwa56/Downloads/Homework2_data/validation_feat.pickle', 'rb')
-valid_feat = pickle.load(feat_valid)
-feat_valid.close()
-
-label_valid = open('/Users/rwa56/Downloads/Homework2_data/validation_lab.pickle', 'rb')
-valid_label = pickle.load(label_valid)
-label_valid.close()
-
-feat_test = open('/Users/rwa56/Downloads/Homework2_data/test_feat.pickle', 'rb')
-test_feat = pickle.load(feat_test)
-feat_test.close()
 
 
-print('The train shape: ', train_feat.shape)
-print(train_feat.shape[0], 'train samples')
-
-print('The validation shape: ', valid_feat.shape)
-print(valid_feat.shape[0],'test samples')
-
-
-print('The test shape: ', test_feat.shape)
-print(test_feat.shape[0],'test samples')
-
-X_train = train_feat.astype('float32')
-X_valid = valid_feat.astype('float32')
-X_test = test_feat.astype('float32')
-
-#X_train /= 255
-#X_valid /= 255
-#X_test /= 255
-
-for i in xrange(X_train.shape[0]):
-    X_train[i,:,:,:] = scipy.ndimage.interpolation.rotate(X_train[i,:,:,:],-90)
-
-#X_train = X_train.reshape(X_train.shape[0], 3, 32, 32)
-
-for i in xrange(X_valid.shape[0]):
-    X_valid[i,:,:,:] = scipy.ndimage.interpolation.rotate(X_valid[i,:,:,:],-90)
-
-#X_valid = X_valid.reshape(X_valid.shape[0], 3, 32, 32)
-
-for i in xrange(X_test.shape[0]):
-    X_test[i,:,:,:] = scipy.ndimage.interpolation.rotate(X_test[i,:,:,:],-90)
-
-#X_test = X_test.reshape(X_test.shape[0], 3, 32, 32)
-
-
-print('Train Sample Shape: ', X_train.shape[1:])
-
-Y_train = np_utils.to_categorical(train_label, nb_classes)
-Y_valid = np_utils.to_categorical(valid_label, nb_classes)
 
 
 
 def identity_block(input_tensor, kernel_size, filters, stage, block):
+    '''The identity_block is the block that has no conv layer at shortcut
+    # Arguments
+        input_tensor: input tensor
+        kernel_size: defualt 3, the kernel size of middle conv layer at main path
+        filters: list of integers, the nb_filters of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+    '''
     nb_filter1, nb_filter2, nb_filter3 = filters
     if K.image_dim_ordering() == 'tf':
         bn_axis = 3
@@ -112,16 +59,7 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
 
 
 def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2)):
-    '''conv_block is the block that has a conv layer at shortcut
-    # Arguments
-        input_tensor: input tensor
-        kernel_size: defualt 3, the kernel size of middle conv layer at main path
-        filters: list of integers, the nb_filters of 3 conv layer at main path
-        stage: integer, current stage label, used for generating layer names
-        block: 'a','b'..., current block label, used for generating layer names
-    Note that from stage 3, the first conv layer at main path is with subsample=(2,2)
-    And the shortcut should have subsample=(2,2) as well
-    '''
+
     nb_filter1, nb_filter2, nb_filter3 = filters
     if K.image_dim_ordering() == 'tf':
         bn_axis = 3
@@ -200,15 +138,69 @@ def ResNet50(include_top=True,
 
     if include_top:
         x = Flatten()(x)
-        x = Dense(10, activation='softmax', name='fc1000')(x)
+        x = Dense(10, activation='softmax', name='cifar10')(x)
 
     model = Model(img_input, x)
 
     return model
 
 
-model = ResNet50(include_top=True)
 
+
+
+
+batch_size = 80
+nb_classes = 10
+nb_epoch = 50
+data_augmentation = True
+img_rows, img_cols = 32, 32
+img_channels = 3
+
+
+feat_train = open('/Users/rwa56/Downloads/Homework2_data/train_feat.pickle', 'rb')
+train_feat = pickle.load(feat_train)
+feat_train.close()
+
+label_train = open('/Users/rwa56/Downloads/Homework2_data/train_lab.pickle', 'rb')
+train_label = pickle.load(label_train)
+label_train.close()
+
+feat_valid = open('/Users/rwa56/Downloads/Homework2_data/validation_feat.pickle', 'rb')
+valid_feat = pickle.load(feat_valid)
+feat_valid.close()
+
+label_valid = open('/Users/rwa56/Downloads/Homework2_data/validation_lab.pickle', 'rb')
+valid_label = pickle.load(label_valid)
+label_valid.close()
+
+feat_test = open('/Users/rwa56/Downloads/Homework2_data/test_feat.pickle', 'rb')
+test_feat = pickle.load(feat_test)
+feat_test.close()
+
+
+print('The train shape: ', train_feat.shape)
+print(train_feat.shape[0], 'train samples')
+
+print('The validation shape: ', valid_feat.shape)
+print(valid_feat.shape[0],'test samples')
+
+
+print('The test shape: ', test_feat.shape)
+print(test_feat.shape[0],'test samples')
+
+X_train = train_feat.astype('float32')
+X_valid = valid_feat.astype('float32')
+X_test = test_feat.astype('float32')
+
+#X_train /= 255
+#X_valid /= 255
+#X_test /= 255
+
+Y_train = np_utils.to_categorical(train_label, nb_classes)
+Y_valid = np_utils.to_categorical(valid_label, nb_classes)
+
+
+model = ResNet50(include_top=True)
 
 adagrad = Adagrad(lr=0.01, epsilon=1e-08, decay=0.0)
 model.compile(loss='categorical_crossentropy',
