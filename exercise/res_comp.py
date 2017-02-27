@@ -117,7 +117,7 @@ def ResNet50(include_top=True,
         bn_axis = 1
 
     x = ZeroPadding2D((3, 3))(img_input)
-    x = Convolution2D(32, 3, 3, name='conv1')(x)
+    x = Convolution2D(32, 3, 3,subsample=(2, 2), name='conv1')(x)
     x = BatchNormalization(axis=bn_axis, name='bn_conv1')(x)
     x = Activation('relu')(x)
     x = MaxPooling2D((3, 3), strides=(2, 2))(x)
@@ -125,13 +125,11 @@ def ResNet50(include_top=True,
     x = conv_block(x, 3, [32, 32, 64], stage=2, block='a', strides=(1, 1))
     x = identity_block(x, 3, [32, 32, 64], stage=2, block='b')
     x = identity_block(x, 3, [32, 32, 64], stage=2, block='c')
-    x = identity_block(x, 3, [32, 32, 64], stage=2, block='d')
 
     x = conv_block(x, 3, [64, 64, 256], stage=3, block='a')
     x = identity_block(x, 3, [64, 64, 256], stage=3, block='b')
     x = identity_block(x, 3, [64, 64, 256], stage=3, block='c')
     x = identity_block(x, 3, [64, 64, 256], stage=3, block='d')
-    x = identity_block(x, 3, [64, 64, 256], stage=3, block='e')
 
 
     x = AveragePooling2D((3, 3), name='avg_pool')(x)
@@ -203,7 +201,7 @@ Y_train = np_utils.to_categorical(train_label, nb_classes)
 Y_valid = np_utils.to_categorical(valid_label, nb_classes)
 
 sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-adagrad = Adagrad(lr=0.01, epsilon=1e-09, decay=1e-9)
+adagrad = Adagrad(lr=0.01, epsilon=1e-08, decay=1e-10)
 
 model = ResNet50(include_top=True)
 
@@ -219,7 +217,7 @@ if not data_augmentation:
     model.fit(X_train, Y_train, batch_size=batch_size,
                         nb_epoch=nb_epoch,
                         verbose=1,
-                        validation_split=0.1)
+                        validation_data=(X_valid,Y_valid))
 
 else:
     print('Use real-time data augmentation')
@@ -230,8 +228,8 @@ else:
         featurewise_std_normalization=False,
         samplewise_std_normalization=False,
         zca_whitening=False,
-        width_shift_range=0.15,
-        height_shift_range=0.15,
+        width_shift_range=0.1,
+        height_shift_range=0.1,
         horizontal_flip=True,
         vertical_flip=False)
 

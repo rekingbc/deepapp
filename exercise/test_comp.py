@@ -24,7 +24,7 @@ from keras.utils.data_utils import get_file
 batch_size = 50
 nb_classes = 10
 nb_epoch = 10
-data_augmentation = True
+data_augmentation = False
 
 # input image dimensions
 img_rows, img_cols = 32, 32
@@ -189,10 +189,10 @@ def ResNet50(include_top=True,
 
 
 model = ResNet50(include_top=True)
-
+adagrad = Adagrad(lr=0.01, epsilon=1e-08, decay=1e-10)
 # Let's train the model using RMSprop
 model.compile(loss='categorical_crossentropy',
-              optimizer='rmsprop',
+              optimizer=adagrad,
               metrics=['accuracy'])
 
 X_train = X_train.astype('float32')
@@ -206,11 +206,10 @@ X_final = np.vstack((X_train,X_test))
 
 if not data_augmentation:
     print('Not using data augmentation.')
-    model.fit(X_train, Y_train,
+    model.fit(X_final, Y_final,
               batch_size=batch_size,
               nb_epoch=nb_epoch,
-              validation_data=(X_valid, Y_valid),
-              shuffle=True)
+              validation_data=(X_valid, Y_valid))
 else:
     print('Using real-time data augmentation.')
     # This will do preprocessing and realtime data augmentation:

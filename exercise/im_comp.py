@@ -17,8 +17,8 @@ import numpy
 
 batch_size = 40
 nb_classes = 10
-nb_epoch = 50
-data_augmentation = False
+nb_epoch = 3
+data_augmentation = True
 img_rows, img_cols = 32, 32
 img_channels = 3
 
@@ -107,12 +107,12 @@ model.add(Dropout(0.25))
 model.add(Flatten())
 model.add(Dense(512))
 model.add(Activation('relu'))
-model.add(Dropout(0.4))
+model.add(Dropout(0.3))
 model.add(Dense(nb_classes))
 model.add(Activation('softmax'))
 
 
-model = ResNet50(include_top=True)
+#model = ResNet50(include_top=True)
 
 
 adagrad = Adagrad(lr=0.01, epsilon=1e-08, decay=0.0)
@@ -127,7 +127,7 @@ if not data_augmentation:
     model.fit(X_train, Y_train, batch_size=batch_size,
                         nb_epoch=nb_epoch,
                         verbose=1,
-                        validation_split=0.1)
+                        validation_data=(X_valid,Y_valid))
 
 else:
     print('Use real-time data augmentation')
@@ -138,11 +138,10 @@ else:
         featurewise_std_normalization=False,
         samplewise_std_normalization=False,
         zca_whitening=False,
-        rotation_range=0,
         width_shift_range=0.1,
         height_shift_range=0.1,
         horizontal_flip=False,
-        vertical_flip=False)
+        vertical_flip=True)
 
     datagen.fit(X_train)
 
@@ -155,6 +154,13 @@ else:
 
 test_label = model.predict(X_test)
 
-label_test = open('~/Downloads/Homework2_data/test_lab.pickle', 'rb')
-pickle.dump(test_label, label_test)
+label_test = open('/Users/rwa56/Downloads/Homework2_data/test_lab.pickle', 'wb')
+
+
+for i in range(len(test_label)):
+        test_lab[i] = test_label[i]
+#save the pickle file that you should upload:
+
+
+pickle.dump(test_lab, label_test)
 label_test.close()
